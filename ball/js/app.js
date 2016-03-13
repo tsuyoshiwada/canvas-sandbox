@@ -131,23 +131,16 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
           ball.x += inertiaForce.x;
           ball.y += inertiaForce.y;
 
-          if (ball.x <= 0) {
-            ball.x = 0;
-            inertiaForce.x = -inertiaForce.x * World.REBOUND;
-          } else if (ball.x >= this.width - ball.size) {
-            ball.x = this.width - ball.size;
+          if (ball.x <= 0 || ball.x >= this.width - ball.size) {
             inertiaForce.x = -inertiaForce.x * World.REBOUND;
           }
 
-          if (ball.y <= 0) {
-            ball.y = 0;
-            inertiaForce.y = -inertiaForce.y * World.REBOUND;
-            inertiaForce.x *= World.FRICTION;
-          } else if (ball.y >= this.height - ball.size) {
-            ball.y = this.height - ball.size;
+          if (ball.y <= 0 || ball.y >= this.height - ball.size) {
             inertiaForce.y = -inertiaForce.y * World.REBOUND;
             inertiaForce.x *= World.FRICTION;
           }
+
+          this.normalizePosition(ball);
 
           var length = inertiaForce.length;
           var thickness = length * World.FRICTION;
@@ -174,6 +167,12 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
         this.height = document.documentElement.clientHeight;
         this.el.width = this.width;
         this.el.height = this.height;
+      }
+    }, {
+      key: "normalizePosition",
+      value: function normalizePosition(target) {
+        target.x = Math.min(this.width - target.size, Math.max(0, target.x));
+        target.y = Math.min(this.height - target.size, Math.max(0, target.y));
       }
     }, {
       key: "handleResize",
@@ -204,8 +203,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
         var offset = this.offset;
 
         this.lastPoint = new Point(ball.x, ball.y);
-        ball.x = Math.min(this.width - ball.size, Math.max(0, e.pageX + offset.x));
-        ball.y = Math.min(this.height - ball.size, Math.max(0, e.pageY + offset.y));
+        ball.x = e.pageX + offset.x;
+        ball.y = e.pageY + offset.y;
+        this.normalizePosition(ball);
       }
     }, {
       key: "handleMouseUp",
